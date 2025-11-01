@@ -1,0 +1,36 @@
+# -*- coding: utf-8 -*-
+import sys
+import importlib
+import pytest
+
+
+@pytest.fixture
+def app(monkeypatch):
+    # Configure env BEFORE importing the package so settings pick them up
+    monkeypatch.setenv("FLASK_SECRET_KEY", "test-secret")
+    monkeypatch.setenv("DASH_HOST_IP", "dash.example.local")
+    monkeypatch.setenv("DASH_HOST_PORT", "443")
+    monkeypatch.setenv("DASH_INTEGRATION_SERVICE", "ltpa-integration/validate")
+    monkeypatch.setenv("LTPA_TOKEN_NAME", "LtpaToken2")
+    monkeypatch.setenv("VERIFY_TLS", "false")  # disable TLS verify in tests
+
+    # Ensure fresh imports for settings/auth/views between tests
+    for mod in [
+        "tce_app.settings",
+        "tce_app.rbac",
+        "tce_app.auth",
+        "tce_app.views",
+        "tce_app",
+    ]:
+        if mod in sys.modules:
+            del sys.modules[mod]
+
+    tce_app = importlib.import_module("tce_app")
+    flask_app = tce_app.create_app()
+
+    yield flask_app
+
+
+@pytest.fixture
+def client(app):
+    return app.test_client()

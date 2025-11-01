@@ -1,0 +1,16 @@
+apiVersion: v2
+name: tce-ltpa
+description: Helm chart for Netcool DASH LTPA Auth Flask app
+icon: https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/python.svg
+keywords:
+  - flask
+  - ltpa
+  - netcool
+  - dash
+  - sso
+maintainers:
+  - name: your-name
+    email: you@example.com
+version: 0.1.0        # chart version
+appVersion: "1.0.0"   # app version (container tag)
+type: application

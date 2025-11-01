@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+  tce-app:
+    build: .
+    image: tce-ltpa:latest
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY:-change-me}
+      DASH_HOST_IP: ${DASH_HOST_IP}
+      DASH_HOST_PORT: ${DASH_HOST_PORT:-443}
+      DASH_INTEGRATION_SERVICE: ${DASH_INTEGRATION_SERVICE:-ltpa-integration/validate}
+      LTPA_TOKEN_NAME: ${LTPA_TOKEN_NAME:-LtpaToken2}
+      VERIFY_TLS: ${VERIFY_TLS:-true}
+      CA_BUNDLE_PATH: ${CA_BUNDLE_PATH:-}
+      TIMEOUT_SECONDS: ${TIMEOUT_SECONDS:-5}
+    restart: unless-stopped

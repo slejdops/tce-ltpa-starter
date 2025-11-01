@@ -1,0 +1,14 @@
+1. App Name: {{ include "tce-ltpa.fullname" . }}
+2. Service: {{ .Values.service.type }} on port {{ .Values.service.port }} (targets {{ .Values.service.targetPort }})
+3. Health: GET /healthz
+
+{{- if .Values.ingress.enabled }}
+Ingress enabled. Access your app via:
+{{- range .Values.ingress.hosts }}
+  - http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
+{{- end }}
+{{- else }}
+No Ingress configured. To port-forward locally:
+  kubectl port-forward svc/{{ include "tce-ltpa.fullname" . }} 8080:{{ .Values.service.port }}
+  open http://localhost:8080
+{{- end }}

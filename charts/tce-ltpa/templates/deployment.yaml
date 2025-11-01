@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tce-ltpa.fullname" . }}
+  labels:
+    {{- include "tce-ltpa.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "tce-ltpa.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "tce-ltpa.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        {{- if .Values.podLabels }}
+        {{- toYaml .Values.podLabels | nindent 8 }}
+        {{- end }}
+      {{- if .Values.podAnnotations }}
+      annotations:
+        {{- toYaml .Values.podAnnotations | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ .Values.serviceAccount.name | default (include "tce-ltpa.fullname" .) }}
+      {{- end }}
+      {{- if .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.image.pullSecrets | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: app
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "tce-ltpa.fullname" . }}
+            - secretRef:
+                name: {{ .Values.flaskSecret.name | default (printf "%s-flask" (include "tce-ltpa.fullname" .)) }}
+          env:
+            {{- if .Values.customCA.enabled }}
+            - name: REQUESTS_CA_BUNDLE
+              value: {{ .Values.customCA.mountPath | quote }}
+            {{- end }}
+            {{- if .Values.env.CA_BUNDLE_PATH }}
+            - name: REQUESTS_CA_BUNDLE
+              value: {{ .Values.env.CA_BUNDLE_PATH | quote }}
+            {{- end }}
+            {{- if .Values.extraEnv }}
+            {{- toYaml .Values.extraEnv | nindent 12 }}
+            {{- end }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            {{- if .Values.customCA.enabled }}
+            - name: custom-ca
+              mountPath: {{ .Values.customCA.mountPath }}
+              subPath: {{ .Values.customCA.key }}
+              readOnly: true
+            {{- end }}
+      volumes:
+        {{- if .Values.customCA.enabled }}
+        - name: custom-ca
+          secret:
+            secretName: {{ .Values.customCA.secretName }}
+        {{- end }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- if .Values.affinity }}
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}

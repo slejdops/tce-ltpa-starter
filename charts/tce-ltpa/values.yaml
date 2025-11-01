@@ -1,0 +1,107 @@
+# Container image
+image:
+  repository: ghcr.io/your-org/tce-ltpa
+  tag: "latest"
+  pullPolicy: IfNotPresent
+  pullSecrets: []  # e.g., [my-ghcr-secret]
+
+# Pod replicas & autoscaling
+replicaCount: 2
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 75
+  # targetMemoryUtilizationPercentage: 80
+
+# Service
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 5000
+
+# Ingress
+ingress:
+  enabled: false
+  className: ""        # e.g., nginx, traefik, alb
+  annotations: {}
+  hosts:
+    - host: app.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  # - secretName: app-tls
+  #   hosts:
+  #     - app.example.com
+
+# Environment (non-secret) -> ConfigMap
+env:
+  FLASK_RUN_HOST: "0.0.0.0"
+  FLASK_RUN_PORT: "5000"
+  DASH_HOST_IP: "10.0.0.5"
+  DASH_HOST_PORT: "443"
+  DASH_INTEGRATION_SERVICE: "ltpa-integration/validate"
+  LTPA_TOKEN_NAME: "LtpaToken2"
+  VERIFY_TLS: "true"
+  CA_BUNDLE_PATH: ""        # if you mount a custom CA, set this to the mounted path
+  TIMEOUT_SECONDS: "5"
+
+# Extra env entries (advanced). Example:
+# extraEnv:
+#   - name: LOG_LEVEL
+#     value: INFO
+extraEnv: []
+
+# Secret handling for Flask key and optional REQUESTS_CA_BUNDLE
+flaskSecret:
+  create: true
+  name: tce-ltpa-flask
+  key: FLASK_SECRET_KEY
+  value: "change-me"   # override via --set or values file; prefer external secret in prod
+
+# Provide a custom CA bundle via a Secret (optional)
+customCA:
+  enabled: false
+  secretName: ""        # name of a secret containing the CA file
+  key: ca.crt           # key within the secret to mount
+  mountPath: /etc/ssl/certs/custom-ca.crt  # update env.CA_BUNDLE_PATH accordingly
+
+# Probes
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 2
+  failureThreshold: 3
+readinessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  initialDelaySeconds: 3
+  periodSeconds: 5
+  timeoutSeconds: 2
+  failureThreshold: 3
+
+# Resources
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# Pod options
+nodeSelector: {}
+ tolerations: []
+affinity: {}
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+podAnnotations: {}
+podLabels: {}
