@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-from typing import List, Optional
-from .auth import UserDetails
+from typing import List, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .auth import UserDetails
 
 
-def check_user_privileges(user: UserDetails, required_roles: Optional[List[str]] = None) -> bool:
+def check_user_privileges(user: "UserDetails", required_roles: Optional[List[str]] = None) -> bool:
     """Return True if the user has at least one of the required roles."""
     if not required_roles:
         return True
