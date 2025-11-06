@@ -121,7 +121,21 @@ def diagnostics_benchmark():
 def diagnostics_search_logs():
     """Search logs for errors"""
     max_matches = request.args.get('max_matches', 100, type=int)
-    results = diagnostic_runner.search_logs(max_matches=max_matches)
+
+    # Parse search_dirs and exclude_dirs from query params
+    search_dirs = None
+    if request.args.get('dirs'):
+        search_dirs = request.args.get('dirs').split(',')
+
+    exclude_dirs = None
+    if request.args.get('exclude_dirs'):
+        exclude_dirs = request.args.get('exclude_dirs').split(',')
+
+    results = diagnostic_runner.search_logs(
+        search_dirs=search_dirs,
+        exclude_dirs=exclude_dirs,
+        max_matches=max_matches
+    )
     return jsonify({"matches": results, "count": len(results)})
 
 

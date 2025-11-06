@@ -156,11 +156,14 @@ class DiagnosticRunner:
         self,
         search_dirs: Optional[list] = None,
         error_patterns: Optional[list] = None,
+        exclude_dirs: Optional[list] = None,
         max_matches: int = 100
     ) -> list:
         """Search logs for errors"""
         logger.info("Searching logs for errors...")
-        return self.system.search_logs_for_errors(search_dirs, error_patterns, max_matches)
+        return self.system.search_logs_for_errors(
+            search_dirs, error_patterns, exclude_dirs, max_matches
+        )
 
     def generate_report(
         self,

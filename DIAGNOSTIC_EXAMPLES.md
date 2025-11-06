@@ -312,8 +312,17 @@ print(f"SSL Version: {ssl_perf['ssl_version']}")
   --dirs /opt/IBM/tivoli/netcool/omnibus/log,/var/log/netcool \
   --max-matches 50
 
+# Search with directory exclusion (skip archived or rotated logs)
+./diagnose.py search-logs \
+  --dirs /var/log/netcool \
+  --exclude-dirs /var/log/netcool/archive,/var/log/netcool/backup \
+  --max-matches 50
+
 # Via API with specific patterns
 curl "http://localhost:5000/diagnostics/search-logs?max_matches=25"
+
+# Via API with exclusion
+curl "http://localhost:5000/diagnostics/search-logs?dirs=/var/log/netcool&exclude_dirs=/var/log/netcool/archive&max_matches=50"
 ```
 
 **Sample Output**:

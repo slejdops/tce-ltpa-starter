@@ -157,11 +157,18 @@ class SystemDataCollector(BaseDiagnostic):
         self,
         search_dirs: Optional[List[str]] = None,
         patterns: Optional[List[str]] = None,
+        exclude_dirs: Optional[List[str]] = None,
         max_files: int = 50
     ) -> List[Dict[str, Any]]:
         """
         Find log files in specified directories
         Returns list of log file metadata
+
+        Args:
+            search_dirs: List of directories to search in
+            patterns: List of file patterns to match (e.g., '*.log')
+            exclude_dirs: List of directory paths to exclude from search
+            max_files: Maximum number of files to return
         """
         if search_dirs is None:
             search_dirs = self.LOG_LOCATIONS
@@ -169,15 +176,43 @@ class SystemDataCollector(BaseDiagnostic):
         if patterns is None:
             patterns = ['*.log', '*.out', '*.err', '*error*', '*exception*']
 
+        if exclude_dirs is None:
+            exclude_dirs = []
+
+        # Normalize exclude paths
+        exclude_paths = set()
+        for exclude_dir in exclude_dirs:
+            try:
+                exclude_paths.add(os.path.abspath(exclude_dir))
+            except Exception:
+                continue
+
         log_files = []
 
         for search_dir in search_dirs:
             if not os.path.exists(search_dir):
                 continue
 
+            # Check if search_dir itself is excluded
+            try:
+                search_dir_abs = os.path.abspath(search_dir)
+                if any(search_dir_abs.startswith(excl) for excl in exclude_paths):
+                    self.logger.debug(f"Skipping excluded directory: {search_dir}")
+                    continue
+            except Exception:
+                pass
+
             try:
                 for pattern in patterns:
                     for log_file in Path(search_dir).rglob(pattern):
+                        # Check if file's parent directory is excluded
+                        try:
+                            file_abs = str(log_file.absolute())
+                            if any(file_abs.startswith(excl) for excl in exclude_paths):
+                                continue
+                        except Exception:
+                            continue
+
                         if log_file.is_file():
                             try:
                                 stat = log_file.stat()
@@ -260,11 +295,18 @@ class SystemDataCollector(BaseDiagnostic):
         self,
         search_dirs: Optional[List[str]] = None,
         error_patterns: Optional[List[str]] = None,
+        exclude_dirs: Optional[List[str]] = None,
         max_matches: int = 100
     ) -> List[Dict[str, Any]]:
         """
         Search log files for error patterns
         Returns list of matches with context
+
+        Args:
+            search_dirs: List of directories to search in
+            error_patterns: List of regex patterns to search for
+            exclude_dirs: List of directory paths to exclude from search
+            max_matches: Maximum number of matches to return
         """
         if error_patterns is None:
             error_patterns = [
@@ -281,7 +323,7 @@ class SystemDataCollector(BaseDiagnostic):
             ]
 
         matches = []
-        log_files = self.find_log_files(search_dirs)
+        log_files = self.find_log_files(search_dirs, exclude_dirs=exclude_dirs)
 
         import re
         combined_pattern = re.compile('|'.join(error_patterns), re.IGNORECASE)
