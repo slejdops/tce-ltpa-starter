@@ -277,12 +277,15 @@ def cmd_search_logs(args):
     runner = DiagnosticRunner()
     results = runner.search_logs(
         search_dirs=args.dirs.split(',') if args.dirs else None,
+        exclude_dirs=args.exclude_dirs.split(',') if args.exclude_dirs else None,
         max_matches=args.max_matches
     )
 
     print("\n" + "="*80)
     print("LOG ERROR SEARCH")
     print("="*80)
+    if args.exclude_dirs:
+        print(f"Excluded directories: {args.exclude_dirs}")
     print(f"Found {len(results)} error matches\n")
 
     for match in results:
@@ -393,6 +396,7 @@ def main():
     # search-logs command
     p = subparsers.add_parser('search-logs', help='Search logs for errors')
     p.add_argument('--dirs', help='Comma-separated list of directories to search')
+    p.add_argument('--exclude-dirs', help='Comma-separated list of directories to exclude from search')
     p.add_argument('--max-matches', type=int, default=100,
                    help='Maximum matches to return (default: 100)')
     p.set_defaults(func=cmd_search_logs)

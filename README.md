@@ -122,6 +122,9 @@ chmod +x diagnose.py
 # Search logs for errors
 ./diagnose.py search-logs --dirs /var/log/netcool,/opt/IBM/logs
 
+# Search logs excluding certain directories
+./diagnose.py search-logs --dirs /var/log --exclude-dirs /var/log/archive,/var/log/old
+
 # Generate comprehensive report
 ./diagnose.py report --include-logs -o diagnostic_report.json --format json
 ```
@@ -159,6 +162,9 @@ curl -X POST http://localhost:5000/diagnostics/benchmark \
 
 # Search logs for errors
 curl http://localhost:5000/diagnostics/search-logs?max_matches=50
+
+# Search logs with directory exclusion
+curl "http://localhost:5000/diagnostics/search-logs?dirs=/var/log/netcool&exclude_dirs=/var/log/netcool/archive&max_matches=50"
 
 # Generate comprehensive report
 curl http://localhost:5000/diagnostics/report?include_logs=true
