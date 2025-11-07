@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
-from tce_app.settings import SETTINGS
 
 
 def dash_url():
+    from tce_app.settings import SETTINGS
     return SETTINGS.servlet_url
 
 
