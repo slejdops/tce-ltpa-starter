@@ -7,12 +7,13 @@ import pytest
 @pytest.fixture
 def app(monkeypatch):
     # Configure env BEFORE importing the package so settings pick them up
-    monkeypatch.setenv("FLASK_SECRET_KEY", "test-secret")
+    monkeypatch.setenv("FLASK_SECRET_KEY", "test-secret-key-for-testing-purposes-only-32-chars-minimum")
+    monkeypatch.setenv("FLASK_DEBUG", "true")
     monkeypatch.setenv("DASH_HOST_IP", "dash.example.local")
     monkeypatch.setenv("DASH_HOST_PORT", "443")
     monkeypatch.setenv("DASH_INTEGRATION_SERVICE", "ltpa-integration/validate")
     monkeypatch.setenv("LTPA_TOKEN_NAME", "LtpaToken2")
-    monkeypatch.setenv("VERIFY_TLS", "false")  # disable TLS verify in tests
+    monkeypatch.setenv("VERIFY_TLS", "false")
 
     # Ensure fresh imports for settings/auth/views between tests
     for mod in [

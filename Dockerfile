@@ -1,5 +1,5 @@
-# Python 3.6 base image (EOL). If unavailable in your registry, switch to 3.8/3.9 and keep app code the same.
-FROM python:3.6-slim
+# Python 3.11 base image (recommended for security and performance)
+FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1

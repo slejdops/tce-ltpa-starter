@@ -2,7 +2,7 @@
 """Session Diagnostics - Check session management and persistence"""
 
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Dict, Any, Optional
 
 import requests
@@ -215,7 +215,7 @@ class SessionDiagnostics(BaseDiagnostic):
 
             check_result = {
                 "elapsed_seconds": interval,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "success": False,
                 "status_code": None,
                 "message": ""
