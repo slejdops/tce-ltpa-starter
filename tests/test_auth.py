@@ -66,7 +66,6 @@ def test_whoami_uses_cookie_when_header_missing(client, requests_mock):
 
     # Set LTPA cookie on the test client
     client.set_cookie(
-        server_name="localhost",
         key=os.getenv("LTPA_TOKEN_NAME", "LtpaToken2"),
         value="cookie-token",
     )
