@@ -2,7 +2,7 @@
 """Base classes for diagnostic checks"""
 
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Dict, List, Any, Optional
 import logging
@@ -33,7 +33,7 @@ class DiagnosticResult:
         self.message = message
         self.details = details or {}
         self.recommendation = recommendation
-        self.timestamp = datetime.utcnow()
+        self.timestamp = datetime.now(timezone.utc)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert result to dictionary format"""

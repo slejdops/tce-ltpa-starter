@@ -3,7 +3,7 @@
 
 import logging
 from typing import Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 from .base import DiagnosticLevel
 from .ltpa_diagnostics import LTPADiagnostics
@@ -35,7 +35,7 @@ class DiagnosticRunner:
             Dictionary containing all results and summary
         """
         logger.info("Starting diagnostic checks...")
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         results = {
             "started_at": start_time.isoformat(),
@@ -87,7 +87,7 @@ class DiagnosticRunner:
         # Calculate overall status
         results["overall_status"] = self._calculate_overall_status(results["summary"])
 
-        end_time = datetime.utcnow()
+        end_time = datetime.now(timezone.utc)
         results["completed_at"] = end_time.isoformat()
         results["duration_seconds"] = (end_time - start_time).total_seconds()
 
@@ -243,7 +243,7 @@ class DiagnosticRunner:
         status = {
             "healthy": True,
             "checks": {},
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
 
         # Quick DASH connectivity check

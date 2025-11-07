@@ -6,7 +6,7 @@ import sys
 import platform
 import subprocess
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
 from pathlib import Path
 
@@ -398,7 +398,7 @@ class SystemDataCollector(BaseDiagnostic):
         Generate a comprehensive diagnostic report
         """
         report = {
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "system_info": {
                 "python_version": sys.version,
                 "platform": platform.platform(),

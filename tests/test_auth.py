@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
-from tce_app.settings import SETTINGS
 
 
 def dash_url():
+    from tce_app.settings import SETTINGS
     return SETTINGS.servlet_url
 
 
@@ -66,7 +66,6 @@ def test_whoami_uses_cookie_when_header_missing(client, requests_mock):
 
     # Set LTPA cookie on the test client
     client.set_cookie(
-        server_name="localhost",
         key=os.getenv("LTPA_TOKEN_NAME", "LtpaToken2"),
         value="cookie-token",
     )
